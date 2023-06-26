@@ -653,6 +653,8 @@ namespace ReadMod
                 };
 
                 cutRegions.Add(selectedRegion);
+
+                lblNumSub.Text = cutRegions.Count.ToString();
             }
 
             // Vẽ vùng cắt lên PictureBox 2
@@ -802,6 +804,30 @@ namespace ReadMod
                 // Vẽ lại PictureBox2 để hiển thị region với tọa độ mới
                 pictureBox2.Invalidate();
             }
+        }
+
+        private void pictureBox2_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            // Xác định tọa độ double-click
+            Point clickPoint = e.Location;
+
+            // Lặp qua danh sách CutRegion và kiểm tra tọa độ double-click
+            for (int i = cutRegions.Count - 1; i >= 0; i--)
+            {
+                var region = cutRegions[i];
+
+                // Kiểm tra tọa độ double-click nằm trong vùng của region
+                if (region.Bounds.Contains(clickPoint))
+                {
+                    // Xóa region khỏi danh sách CutRegion
+                    cutRegions.RemoveAt(i);
+                }
+            }
+
+            // Vẽ lại PictureBox2 để hiển thị hình ảnh mới
+            pictureBox2.Invalidate();
+
+            lblNumSub.Text = cutRegions.Count.ToString();
         }
     }
 }
