@@ -22,6 +22,7 @@ namespace ReadMod
         public int height;
 
         public int lengthImage = 0;
+        public byte[] cacheImage;
 
         public List<ImageInfo> imageInfos;
         public List<Frame> frameInfos;
@@ -429,14 +430,14 @@ namespace ReadMod
 
             var lengthImageBytes = IntToBytes((short)lengthImage);
 
-            using (BinaryWriter writer = new BinaryWriter(File.Open("mobPoint", FileMode.Create)))
+            using (BinaryWriter writer = new BinaryWriter(File.Open("mob", FileMode.Create)))
             {
                 foreach (var item in mob)
                 {
                     writer.Write(item.Value);
                 }
-
                 writer.Write(lengthImageBytes);
+                writer.Write(cacheImage);
             }
         }
 
@@ -1155,6 +1156,8 @@ namespace ReadMod
                 byte[] imageBytes = File.ReadAllBytes(imagePath);
 
                 lengthImage = imageBytes.Length;
+
+                cacheImage = imageBytes;
 
                 // Tạo một MemoryStream từ byte array
                 using (MemoryStream memoryStream = new MemoryStream(imageBytes))
