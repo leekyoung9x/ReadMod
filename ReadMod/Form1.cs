@@ -22,6 +22,7 @@ namespace ReadMod
         public int height;
 
         public List<ImageInfo> imageInfos;
+        public List<Frame> frameInfos;
         public List<ImageCut> imageInfoCuts;
 
         private Point startPoint;
@@ -39,6 +40,7 @@ namespace ReadMod
             InitializeComponent();
             imageInfos = new List<ImageInfo>();
             imageInfoCuts = new List<ImageCut>();
+            frameInfos = new List<Frame>();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -208,13 +210,15 @@ namespace ReadMod
                         //SaveImage(frame, "D:\\Mob\\read mob\\frame\\x" + zoomLevel + "\\" + mobId + "\\", $"{mobId}" + "_" + i + ".png");
                     }
 
-                    //int nAFrame = reader.ReadInt16();
+                    int nAFrame = ReadShort(reader);
 
-                    //for (int i = 0; i < nAFrame; i++)
-                    //{
-                    // int frameId = reader.ReadInt16();
-                    // // Console.WriteLine("frame id: " + frameId);
-                    //}
+                    for (int i = 0; i < nAFrame; i++)
+                    {
+                        int frameId = ReadShort(reader);
+                        // Console.WriteLine("frame id: " + frameId);
+                    }
+
+                    var clone = reader.ReadBytes(2);
 
                     //using (FileStream output = new FileStream($"D:\\Mob\\read mob\\framegif\\{mobId}.gif", FileMode.Create))
                     //{
@@ -236,6 +240,234 @@ namespace ReadMod
             {
                 Console.WriteLine(e.StackTrace);
             }
+        }
+
+        private void btnBuildMob_Click(object sender, EventArgs e)
+        {
+            int i = 0;
+            int zoom = !string.IsNullOrEmpty(lblZoom.Text) ? int.Parse(lblZoom.Text) : 2;
+
+            List<MobPotitionInfo> mob = new List<MobPotitionInfo>();
+
+            // Thêm type read và 4 byte là length của potion đằng sau
+            for (i = 0; i < 5; i++)
+            {
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = 0
+                });
+            }
+
+            // Thêm số lượng imgInfo
+            mob.Add(new MobPotitionInfo()
+            {
+                ID = i,
+                Value = (sbyte)imageInfos.Count
+            });
+
+            i++;
+
+            // Thêm thông tin từng imgInfo
+            foreach (var item in imageInfos)
+            {
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = (sbyte)item.ID
+                });
+
+                i++;
+
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = (sbyte)(item.x / zoom)
+                });
+
+                i++;
+
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = (sbyte)(item.y / zoom)
+                });
+
+                i++;
+
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = (sbyte)(item.w / zoom)
+                });
+
+                i++;
+
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = (sbyte)(item.h / zoom)
+                });
+
+                i++;
+            }
+
+            // Thêm số lượng frame
+            var frameLength = ShortToBytes((short)frameInfos.Count);
+
+            foreach (var item in frameLength)
+            {
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = (sbyte)item
+                });
+
+                i++;
+            }
+
+            foreach (var item in frameInfos)
+            {
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = (sbyte)item.nSubImage
+                });
+
+                i++;
+
+                for (int j = 0; j < item.nSubImage; j++)
+                {
+                    var dx = ShortToSBytes((short)(item.dx[j] / zoom));
+                    var dy = ShortToSBytes((short)(item.dy[j] / zoom));
+
+                    foreach (var dxItem in dx)
+                    {
+                        mob.Add(new MobPotitionInfo()
+                        {
+                            ID = i,
+                            Value = dxItem
+                        });
+
+                        i++;
+                    }
+
+                    foreach (var dyItem in dy)
+                    {
+                        mob.Add(new MobPotitionInfo()
+                        {
+                            ID = i,
+                            Value = dyItem
+                        });
+
+                        i++;
+                    }
+
+                    mob.Add(new MobPotitionInfo()
+                    {
+                        ID = i,
+                        Value = (sbyte)item.idImg[j]
+                    });
+
+                    i++;
+                }
+            }
+
+            var nAFrame = ShortToSBytes((short)frameInfos.Count);
+
+            foreach (var item in nAFrame)
+            {
+                mob.Add(new MobPotitionInfo()
+                {
+                    ID = i,
+                    Value = item
+                });
+
+                i++;
+            }
+
+            for (int m = 0; m < frameInfos.Count; m++)
+            {
+                var frameId = ShortToSBytes((short)m);
+
+                foreach (var item in frameId)
+                {
+                    mob.Add(new MobPotitionInfo()
+                    {
+                        ID = i,
+                        Value = item
+                    });
+
+                    i++;
+                }
+            }
+
+            mob.Add(new MobPotitionInfo()
+            {
+                ID = i,
+                Value = 0
+            });
+
+            i++;
+
+            mob.Add(new MobPotitionInfo()
+            {
+                ID = i,
+                Value = 0
+            });
+
+            i++;
+
+            var dataLength = IntToSBytes(mob.Count - 5);
+
+            for (int k = 0; k < dataLength.Length; k++)
+            {
+                mob[k + 1].Value = dataLength[k];
+            }
+
+            using (BinaryWriter writer = new BinaryWriter(File.Open("mobPoint", FileMode.Create)))
+            {
+                foreach (var item in mob)
+                {
+                    writer.Write(item.Value);
+                }
+            }
+        }
+
+        public sbyte[] ShortToSBytes(short value)
+        {
+            sbyte[] sbytes = new sbyte[2];
+            sbytes[0] = (sbyte)(value >> 8);   // Lấy sbyte thứ nhất từ giá trị short
+            sbytes[1] = (sbyte)value;           // Lấy sbyte thứ hai từ giá trị short
+            return sbytes;
+        }
+
+        public sbyte[] IntToSBytes(int value)
+        {
+            sbyte[] sbytes = new sbyte[4];
+            sbytes[0] = (sbyte)(value >> 24);      // Lấy sbyte thứ nhất từ giá trị int
+            sbytes[1] = (sbyte)(value >> 16);      // Lấy sbyte thứ hai từ giá trị int
+            sbytes[2] = (sbyte)(value >> 8);       // Lấy sbyte thứ ba từ giá trị int
+            sbytes[3] = (sbyte)value;               // Lấy sbyte thứ tư từ giá trị int
+            return sbytes;
+        }
+
+        public byte[] ShortToBytes(short value)
+        {
+            byte[] bytes = new byte[2];
+            bytes[0] = (byte)(value >> 8);       // Lấy byte thứ nhất từ giá trị short
+            bytes[1] = (byte)(value & 0xFF);     // Lấy byte thứ hai từ giá trị short
+            return bytes;
+        }
+
+        public byte[] IntToBytes(int value)
+        {
+            byte[] bytes = new byte[4];
+            bytes[0] = (byte)(value >> 24);      // Lấy byte thứ nhất từ giá trị int
+            bytes[1] = (byte)(value >> 16);      // Lấy byte thứ hai từ giá trị int
+            bytes[2] = (byte)(value >> 8);       // Lấy byte thứ ba từ giá trị int
+            bytes[3] = (byte)(value & 0xFF);     // Lấy byte thứ tư từ giá trị int
+            return bytes;
         }
 
         public static System.Drawing.Image CropImage(System.Drawing.Image image, int x, int y, int width, int height)
@@ -662,23 +894,47 @@ namespace ReadMod
             {
                 g.DrawImage(selectedRegion.Image, selectedRegion.Bounds);
             }
+            pictureBox2.Invalidate();
         }
 
         private void pictureBox2_Paint(object sender, PaintEventArgs e)
         {
             // Vẽ các vùng cắt trên PictureBox 2
-            foreach (CutRegion cutRegion in cutRegions)
+            //foreach (CutRegion cutRegion in cutRegions)
+            //{
+            // e.Graphics.DrawImage(cutRegion.Image, cutRegion.Bounds);
+            //}
+
+            // Tính toán tọa độ giữa của PictureBox2
+            int centerX = pictureBox2.Width / 2;
+            int centerY = pictureBox2.Height / 2;
+
+            // Duyệt qua danh sách CutRegion và điều chỉnh tọa độ
+            foreach (var region in cutRegions)
             {
-                e.Graphics.DrawImage(cutRegion.Image, cutRegion.Bounds);
+                // Tính toán lại tọa độ của region
+                int adjustedX = region.Bounds.X + centerX;
+                int adjustedY = region.Bounds.Y + centerY;
+                Rectangle adjustedRegion = new Rectangle(adjustedX, adjustedY, region.Bounds.Width, region.Bounds.Height);
+
+                // Vẽ region đã tính toán lại tọa độ lên PictureBox2
+                e.Graphics.DrawImage(region.Image, adjustedRegion);
             }
+
+            // Vẽ trục tọa độ
+            e.Graphics.DrawLine(Pens.Black, centerX, 0, centerX, pictureBox2.Height);
+            e.Graphics.DrawLine(Pens.Black, 0, centerY, pictureBox2.Width, centerY);
+            e.Graphics.DrawString("(0, 0)", this.Font, Brushes.Black, new PointF(centerX + 5, centerY + 5));
         }
 
         private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
         {
+            Rectangle regionCheck;
             // Kiểm tra xem chuột có nằm trên một vùng cắt hay không
             foreach (CutRegion cutRegion in cutRegions)
             {
-                if (cutRegion.Bounds.Contains(e.Location))
+                regionCheck = new Rectangle(cutRegion.Bounds.X + pictureBox2.Width / 2, cutRegion.Bounds.Y + pictureBox2.Height / 2, cutRegion.Bounds.Width, cutRegion.Bounds.Height);
+                if (regionCheck.Contains(e.Location))
                 {
                     isMovingRegion = true;
                     selectedRegionBox = cutRegion;
@@ -770,12 +1026,9 @@ namespace ReadMod
             int value;
             if (int.TryParse(textBox.Text, out value))
             {
-                if (value > 0)
-                {
-                    value--;
-                    textBox.Text = value.ToString();
-                    UpdateRegionBox();
-                }
+                value--;
+                textBox.Text = value.ToString();
+                UpdateRegionBox();
             }
         }
 
@@ -808,6 +1061,8 @@ namespace ReadMod
 
         private void pictureBox2_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+            Rectangle regionCheck;
+
             // Xác định tọa độ double-click
             Point clickPoint = e.Location;
 
@@ -816,8 +1071,10 @@ namespace ReadMod
             {
                 var region = cutRegions[i];
 
+                regionCheck = new Rectangle(region.Bounds.X + pictureBox2.Width / 2, region.Bounds.Y + pictureBox2.Height / 2, region.Bounds.Width, region.Bounds.Height);
+
                 // Kiểm tra tọa độ double-click nằm trong vùng của region
-                if (region.Bounds.Contains(clickPoint))
+                if (regionCheck.Contains(clickPoint))
                 {
                     // Xóa region khỏi danh sách CutRegion
                     cutRegions.RemoveAt(i);
@@ -828,6 +1085,55 @@ namespace ReadMod
             pictureBox2.Invalidate();
 
             lblNumSub.Text = cutRegions.Count.ToString();
+        }
+
+        private void btnSaveFrame_Click(object sender, EventArgs e)
+        {
+            var frameInfo = frameInfos.FirstOrDefault(n => n.ID.ToString() == lblFrameID.Text);
+
+            var updateFrame = new Frame();
+
+            updateFrame.nSubImage = (byte)cutRegions.Count;
+            updateFrame.ID = !string.IsNullOrEmpty(lblFrameID.Text) ? int.Parse(lblFrameID.Text) : 0;
+            updateFrame.dx = new short[cutRegions.Count];
+            updateFrame.dy = new short[cutRegions.Count];
+            updateFrame.idImg = new sbyte[cutRegions.Count];
+
+            for (int i = 0; i < cutRegions.Count; i++)
+            {
+                updateFrame.dx[i] = (short)cutRegions[i].Bounds.X;
+                updateFrame.dy[i] = (short)cutRegions[i].Bounds.Y;
+                updateFrame.idImg[i] = (sbyte)cutRegions[i].ID;
+            }
+
+            if (frameInfo != null)
+            {
+                frameInfo.nSubImage = updateFrame.nSubImage;
+                frameInfo.dx = updateFrame.dx;
+                frameInfo.dy = updateFrame.dy;
+                frameInfo.idImg = updateFrame.idImg;
+            }
+            else
+            {
+                frameInfos.Add(updateFrame);
+            }
+
+            Bitmap frame = new Bitmap(400, 400, PixelFormat.Format32bppArgb);
+            Graphics g = Graphics.FromImage(frame);
+            byte nSubImage = updateFrame.nSubImage;
+            for (int j = 0; j < nSubImage; j++)
+            {
+                int dx = updateFrame.dx[j];
+                int dy = updateFrame.dy[j];
+                byte imageId = (byte)updateFrame.idImg[j];
+                g.DrawImage(cutRegions.FirstOrDefault(n => n.ID == imageId).Image, 100 + dx, 100 + dy);
+            }
+
+            var outputPath = string.Format("{0}/Mob/frame", System.IO.Path.GetDirectoryName(Application.ExecutablePath));
+            Directory.CreateDirectory(outputPath);
+
+            // Save individual frame image
+            SaveImage(TrimImage(frame), outputPath, lblFrameID.Text);
         }
     }
 }

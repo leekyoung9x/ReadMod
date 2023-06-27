@@ -57,6 +57,10 @@
             lblFrameID = new TextBox();
             lblNumSub = new TextBox();
             label10 = new Label();
+            btnSaveFrame = new Button();
+            btnBuildMob = new Button();
+            lblZoom = new TextBox();
+            label11 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             SuspendLayout();
@@ -171,6 +175,7 @@
             lblID.Name = "lblID";
             lblID.Size = new Size(100, 23);
             lblID.TabIndex = 12;
+            lblID.Text = "0";
             // 
             // label5
             // 
@@ -299,6 +304,7 @@
             lblFrameID.Name = "lblFrameID";
             lblFrameID.Size = new Size(100, 23);
             lblFrameID.TabIndex = 25;
+            lblFrameID.Text = "0";
             // 
             // lblNumSub
             // 
@@ -316,11 +322,52 @@
             label10.TabIndex = 27;
             label10.Text = "nSub:";
             // 
+            // btnSaveFrame
+            // 
+            btnSaveFrame.Location = new Point(683, 348);
+            btnSaveFrame.Name = "btnSaveFrame";
+            btnSaveFrame.Size = new Size(75, 23);
+            btnSaveFrame.TabIndex = 29;
+            btnSaveFrame.Text = "Lưu frame";
+            btnSaveFrame.UseVisualStyleBackColor = true;
+            btnSaveFrame.Click += btnSaveFrame_Click;
+            // 
+            // btnBuildMob
+            // 
+            btnBuildMob.Location = new Point(449, 595);
+            btnBuildMob.Name = "btnBuildMob";
+            btnBuildMob.Size = new Size(309, 65);
+            btnBuildMob.TabIndex = 30;
+            btnBuildMob.Text = "Build Mob";
+            btnBuildMob.UseVisualStyleBackColor = true;
+            btnBuildMob.Click += btnBuildMob_Click;
+            // 
+            // lblZoom
+            // 
+            lblZoom.Location = new Point(565, 12);
+            lblZoom.Name = "lblZoom";
+            lblZoom.Size = new Size(100, 23);
+            lblZoom.TabIndex = 31;
+            lblZoom.Text = "2";
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Location = new Point(503, 20);
+            label11.Name = "label11";
+            label11.Size = new Size(42, 15);
+            label11.TabIndex = 32;
+            label11.Text = "Zoom:";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 672);
+            Controls.Add(label11);
+            Controls.Add(lblZoom);
+            Controls.Add(btnBuildMob);
+            Controls.Add(btnSaveFrame);
             Controls.Add(lblNumSub);
             Controls.Add(label10);
             Controls.Add(label9);
@@ -388,5 +435,9 @@
         private TextBox lblFrameID;
         private TextBox lblNumSub;
         private Label label10;
+        private Button btnSaveFrame;
+        private Button btnBuildMob;
+        private TextBox lblZoom;
+        private Label label11;
     }
 }
