@@ -61,6 +61,8 @@
             btnBuildMob = new Button();
             lblZoom = new TextBox();
             label11 = new Label();
+            btnSelectImage = new Button();
+            btnClearMob = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             SuspendLayout();
@@ -359,11 +361,33 @@
             label11.TabIndex = 32;
             label11.Text = "Zoom:";
             // 
+            // btnSelectImage
+            // 
+            btnSelectImage.Location = new Point(235, 12);
+            btnSelectImage.Name = "btnSelectImage";
+            btnSelectImage.Size = new Size(75, 23);
+            btnSelectImage.TabIndex = 33;
+            btnSelectImage.Text = "Chọn Ảnh";
+            btnSelectImage.UseVisualStyleBackColor = true;
+            btnSelectImage.Click += btnSelectImage_Click;
+            // 
+            // btnClearMob
+            // 
+            btnClearMob.Location = new Point(449, 524);
+            btnClearMob.Name = "btnClearMob";
+            btnClearMob.Size = new Size(309, 65);
+            btnClearMob.TabIndex = 34;
+            btnClearMob.Text = "Clear Mob";
+            btnClearMob.UseVisualStyleBackColor = true;
+            btnClearMob.Click += btnClearMob_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 672);
+            Controls.Add(btnClearMob);
+            Controls.Add(btnSelectImage);
             Controls.Add(label11);
             Controls.Add(lblZoom);
             Controls.Add(btnBuildMob);
@@ -439,5 +463,7 @@
         private Button btnBuildMob;
         private TextBox lblZoom;
         private Label label11;
+        private Button btnSelectImage;
+        private Button btnClearMob;
     }
 }

@@ -21,6 +21,8 @@ namespace ReadMod
 
         public int height;
 
+        public int lengthImage = 0;
+
         public List<ImageInfo> imageInfos;
         public List<Frame> frameInfos;
         public List<ImageCut> imageInfoCuts;
@@ -425,12 +427,16 @@ namespace ReadMod
                 mob[k + 1].Value = dataLength[k];
             }
 
+            var lengthImageBytes = IntToBytes((short)lengthImage);
+
             using (BinaryWriter writer = new BinaryWriter(File.Open("mobPoint", FileMode.Create)))
             {
                 foreach (var item in mob)
                 {
                     writer.Write(item.Value);
                 }
+
+                writer.Write(lengthImageBytes);
             }
         }
 
@@ -1134,6 +1140,39 @@ namespace ReadMod
 
             // Save individual frame image
             SaveImage(TrimImage(frame), outputPath, lblFrameID.Text);
+        }
+
+        private void btnSelectImage_Click(object sender, EventArgs e)
+        {
+            openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.Filter = "Image Files (*.png;*.jpg;*.jpeg;*.gif;*.bmp)|*.png;*.jpg;*.jpeg;*.gif;*.bmp";
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string imagePath = openFileDialog1.FileName;
+
+                // Đọc các byte từ tệp ảnh
+                byte[] imageBytes = File.ReadAllBytes(imagePath);
+
+                lengthImage = imageBytes.Length;
+
+                // Tạo một MemoryStream từ byte array
+                using (MemoryStream memoryStream = new MemoryStream(imageBytes))
+                {
+                    // Tạo một đối tượng Bitmap từ MemoryStream
+                    Bitmap bitmap = new Bitmap(memoryStream);
+
+                    // Hiển thị ảnh trên PictureBox
+                    pictureBox1.Image = bitmap;
+                }
+            }
+        }
+
+        private void btnClearMob_Click(object sender, EventArgs e)
+        {
+            imageInfos = new List<ImageInfo>();
+            imageInfoCuts = new List<ImageCut>();
+            frameInfos = new List<Frame>();
         }
     }
 }
