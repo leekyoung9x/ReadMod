@@ -430,7 +430,7 @@ namespace ReadMod
 
             var lengthImageBytes = IntToBytes((short)lengthImage);
 
-            using (BinaryWriter writer = new BinaryWriter(File.Open("mob", FileMode.Create)))
+            using (BinaryWriter writer = new BinaryWriter(File.Open("mob_build", FileMode.Create)))
             {
                 foreach (var item in mob)
                 {
