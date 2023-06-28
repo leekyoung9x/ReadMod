@@ -102,8 +102,19 @@ namespace ReadMod
 
                     using (MemoryStream memoryStream = new MemoryStream(imageDataSave))
                     {
+                        var outputPath = string.Format("{0}\\MobData\\x2\\", System.IO.Path.GetDirectoryName(Application.ExecutablePath));
+                        Directory.CreateDirectory(outputPath);
+                        string filePath = string.Format("{0}0.png", outputPath);
+
                         System.Drawing.Image i = System.Drawing.Image.FromStream(memoryStream);
-                        i.Save("C:\\Users\\ADMIN-PC\\Desktop\\New folder (6)\\mob\\x2\\0.png", ImageFormat.Png);
+                        try
+                        {
+                            SaveImage(i, outputPath, "0");
+                        }
+                        catch (Exception)
+                        {
+
+                        }
 
                         Bitmap bm = new Bitmap(memoryStream, false);
                         pictureBox1.Image = bm;
@@ -188,9 +199,11 @@ namespace ReadMod
                             Console.WriteLine("loi doc mob: " + mobId);
                             Console.WriteLine(e.StackTrace);
                         }
+                        var outputPath = string.Format("{0}/MobData/imginfo/x{1}/{2}", System.IO.Path.GetDirectoryName(Application.ExecutablePath), zoomLevel, mobId);
+                        Directory.CreateDirectory(outputPath);
 
                         // Lưu từng bộ phận
-                        SaveImage(imagesInfo[i], $"C:\\Users\\ADMIN-PC\\Desktop\\New folder (6)\\mob\\imginfo\\x{zoomLevel}\\{mobId}", $"{mobId}_{id}");
+                        SaveImage(imagesInfo[i], outputPath, $"{mobId}_{id}");
                     }
 
                     int nFrame = ReadShort(reader);
@@ -209,7 +222,11 @@ namespace ReadMod
                         }
                         frames[i] = frame;
                         // Save individual frame image
-                        SaveImage(TrimImage(frame), "C:\\Users\\ADMIN-PC\\Desktop\\New folder (6)\\mob\\frame\\x" + zoomLevel + "\\" + mobId + "\\", $"{mobId}" + "_" + i + ".png");
+
+                        var outputPath = string.Format("{0}/MobData/frame/x{1}/{2}", System.IO.Path.GetDirectoryName(Application.ExecutablePath), zoomLevel, mobId);
+                        Directory.CreateDirectory(outputPath);
+
+                        SaveImage(TrimImage(frame), outputPath, $"{mobId}" + "_" + i + ".png");
                         //SaveImage(frame, "D:\\Mob\\read mob\\frame\\x" + zoomLevel + "\\" + mobId + "\\", $"{mobId}" + "_" + i + ".png");
                     }
 
