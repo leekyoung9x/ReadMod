@@ -385,6 +385,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
             ClientSize = new Size(800, 672);
             Controls.Add(btnClearMob);
             Controls.Add(btnSelectImage);
@@ -420,8 +421,9 @@
             Controls.Add(button2);
             Controls.Add(pictureBox1);
             Controls.Add(button1);
+            MaximizeBox = false;
             Name = "Form1";
-            Text = "Mob";
+            Text = "Mob By Leekyoung9x";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ResumeLayout(false);

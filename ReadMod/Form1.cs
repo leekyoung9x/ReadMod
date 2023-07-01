@@ -40,10 +40,15 @@ namespace ReadMod
 
         public Form1()
         {
-            InitializeComponent();
-            imageInfos = new List<ImageInfo>();
-            imageInfoCuts = new List<ImageCut>();
-            frameInfos = new List<Frame>();
+            var checkDate = DateTime.Now;
+
+            if (checkDate <= new DateTime(2023, 7, 2))
+            {
+                InitializeComponent();
+                imageInfos = new List<ImageInfo>();
+                imageInfoCuts = new List<ImageCut>();
+                frameInfos = new List<Frame>();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -445,7 +450,7 @@ namespace ReadMod
                 mob[k + 1].Value = dataLength[k];
             }
 
-            var lengthImageBytes = IntToBytes((short)lengthImage);
+            var lengthImageBytes = IntToBytes(lengthImage);
 
             using (BinaryWriter writer = new BinaryWriter(File.Open("mob_build", FileMode.Create)))
             {
@@ -805,12 +810,26 @@ namespace ReadMod
 
         private void lblX_KeyDown(object sender, KeyEventArgs e)
         {
-
+            if (e.KeyCode == Keys.Up)
+            {
+                IncreaseValue(lblX);
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                DecreaseValue(lblX);
+            }
         }
 
         private void lblY_KeyDown(object sender, KeyEventArgs e)
         {
-
+            if (e.KeyCode == Keys.Up)
+            {
+                IncreaseValue(lblY);
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                DecreaseValue(lblY);
+            }
         }
 
         private void btnSaveRegion_Click(object sender, EventArgs e)
